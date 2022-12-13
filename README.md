@@ -2,7 +2,7 @@
 
 Code can be concise and beautiful.  Code can be clean and
 self-explanatory.  Code can be performant and economical.  Code can be
-thoroughly tested and refactored after review.  Code can even be
+thoroughly tested and refactored and reviewed.  Code can even be
 golfed down to be unrecognisable.
 
 *This code is none of that.*

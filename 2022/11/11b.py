@@ -2,12 +2,12 @@
 
 import re
 import sys
+import math
 
 
 alldata = sys.stdin.read()
 
 
-maxitem = 0
 class Monkey:
     DEF = re.compile(r'Monkey\s+(?P<id>[0-9]):\n'
                      r'\s*Starting items: (?P<items>[0-9, ]+)\n'
@@ -32,6 +32,8 @@ class Monkey:
     @staticmethod
     def reset_all():
         Monkey.monkeys = [Monkey(rows) for rows in alldata.split('\n\n')]
+        Monkey.globalmod = int(math.prod(m.test for m in Monkey.monkeys))
+        Monkey.globalmaxitem = 0
 
     @staticmethod
     def inspect_all_monkeys():
@@ -50,10 +52,9 @@ class Monkey:
             self.inspect_one(item)
 
     def inspect_one(self, item):
-        global maxitem
         self.items_seen += 1
-        new_item = eval(self.operation.replace('old', str(item)))
-        maxitem = max(maxitem, new_item)
+        new_item = eval(self.operation.replace('old', str(item))) % Monkey.globalmod
+        Monkey.globalmaxitem = max(Monkey.globalmaxitem, new_item)
         self.items.remove(item)
         next_monkey = None
         if not new_item % self.test:
@@ -67,10 +68,8 @@ class Monkey:
 Monkey.reset_all()
 for i in range(1, 10001):
     Monkey.inspect_all_monkeys()
-    if not i % 100:
-        print('.', end='', flush=True)
-    if i == 1 or i == 20 or not i % 100:
+    if i == 1 or i == 20 or not i % 1000:
         print()
-        print(f"business {Monkey.get_monkey_business()}, {maxitem=}")
+        print(f"business {Monkey.get_monkey_business()}, {Monkey.globalmaxitem=}")
 
 print(Monkey.get_monkey_business())

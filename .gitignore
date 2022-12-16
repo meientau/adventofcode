@@ -1,6 +1,7 @@
 *~
 \#
 .\#*
+.temp
 *.pyc
 __pycache__
 bin

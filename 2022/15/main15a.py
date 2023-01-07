@@ -27,6 +27,13 @@ class Sensor:
         self.d = abs(self.b.x - self.p.x) + abs(self.b.y - self.p.y)
 
 
+    def __str__(self):
+        return f"S({self.p.x},{self.p.y} [{self.d}])"
+
+    def __repr__(self):
+        return self.__str__()
+
+
 class Field:
     def __init__(self, lines=None):
         self.sensors = dict()
@@ -34,12 +41,15 @@ class Field:
         self.covered = set()
         self.tl = None
         self.br = None
+        self.fullRow = set()
 
         if lines:
             self.fill(lines)
 
+        print(f"{distance(self.tl, self.br)=}")
+
     def isBig(self):
-        return distance(self.tl, self.br) < 10
+        return distance(self.tl, self.br) > 50
 
     def fill(self, lines):
         for line in lines:
@@ -68,6 +78,8 @@ class Field:
                 where = Point(x, y)
                 if where in self.sensors:
                     result += "S"
+                elif where in self.fullRow:
+                    result += "o"
                 elif where in self.beacons:
                     result += "B"
                 elif self.inrange(where):
@@ -82,21 +94,40 @@ class Field:
     def inrange(self, p):
         for s in self.sensors.values():
             if distance(s.p, p) <= s.d:
-                return True
+                return s
 
-        return False
+        return None
 
     def countRow(self, y):
-        return sum(self.inrange(Point(x, y)) for x in range(self.tl.x, self.br.x+1)
-                   if Point(x, y) not in self.beacons)
+        fullRow = set()
 
+        for s in self.sensors.values():
+            p = Point(s.p.x, y)
+            rd = s.d - distance(s.p, p)
+            a = s.p.x - rd
+            b = s.p.x + rd
+            print(f"{s=}: {a}...{b} ({(a + b)//2})")
+            for x in range(a, b + 1):
+                fullRow.add(Point(x, y))
+
+        self.fullRow = fullRow - self.beacons
+        count = len(self.fullRow)
+        return count
 
 if __name__ == "__main__":
     field = Field(sys.stdin.readlines())
 
-    if not field.isBig():
-        print(field.paint())
-
     if len(sys.argv) == 2:
         row = int(sys.argv[1])
         print(f"{field.countRow(row)=}")
+
+    if not field.isBig():
+        print(field.paint())
+
+# 6697770 too big
+
+# ..####B######################..
+
+# ..#########################.......
+# ..ooooBoooooooooooooooooooooo......
+# .###S#############.###########.....

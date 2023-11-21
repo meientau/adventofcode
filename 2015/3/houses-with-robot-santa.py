@@ -1,4 +1,4 @@
-#!/python3
+#!/bin/python3
 
 import sys
 from collections import namedtuple
@@ -22,25 +22,31 @@ class Houses:
         '>': Point(1, 0),
     }
 
+    served = set()
+
     def __init__(self):
-        self.houses_served = set()
         self.here = Point(0,0)
 
     def move(self, direction):
-        self.houses_served.add(self.here)
+        Houses.served.add(self.here)
         self.here += Houses.directions[direction]
-        self.houses_served.add(self.here)
+        Houses.served.add(self.here)
 
     def run(self, directions):
         for d in directions:
             self.move(d)
 
     def how_many_houses(self):
-        return len(self.houses_served)
+        return len(Houses.served)
 
 
 if __name__ == "__main__":
     directions = sys.stdin.readline().strip()
-    h = Houses()
-    h.run(directions)
-    print(f"Houses served: {h.how_many_houses()}")
+    santa = Houses()
+    robot_santa = Houses()
+    print(f"input is:   {directions[:10]}")
+    print(f"santa sees: {directions[:10][::2]}")
+    print(f"robot sees: {directions[:10][1::2]}")
+    santa.run(directions[::2])
+    robot_santa.run(directions[1::2])
+    print(f"Houses served: {santa.how_many_houses()}")

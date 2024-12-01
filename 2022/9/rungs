@@ -1,0 +1,15 @@
+#!/bin/bash
+
+input=${1:-input_small}
+declare -a sizes
+left=-182
+right=11
+top=23
+bottom=-354
+width=$((right - left)) + 5
+height=$((top - bottom)) + 5
+
+gs -dNOPAUSE -sDEVICE=pnggray -dBATCH \
+   -g${width}x${height} -sOutputFile=png/frame%03d.png \
+   -sinput=$input -stop="$top" -sbottom="$bottom" -sleft="$left" -sright="$right" \
+   9b.ps

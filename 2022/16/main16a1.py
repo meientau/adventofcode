@@ -67,7 +67,7 @@ class Valve:
         return updated
 
     def show_distances(self, allids):
-        return ' '.join(f"{self.distances[remote]:3}" for remote in allids)
+        return ''.join(f"{self.distances[remote]:3}" for remote in allids)
 
     def __str__(self):
         return f"Valve {self.id} has flow rate={self.flowrate}; tunnels lead to valves {', '.join(self.paths)}"
@@ -75,9 +75,12 @@ class Valve:
     def __repr__(self):
         return self.__str__()
 
+    def direct(self, other):
+        return f'-{self.distances[other.id]}->{other.id}'
+
     def walk(self):
         useful_valves = list(v for v in valves.values() if v.flowrate > 0)
-        for length in range(3, len(useful_valves) + 1):
+        for length in range(3, len(useful_valves)+1):
             maxrelease = 0
             maxopen = 0
             maxroute = list()
@@ -108,28 +111,61 @@ class Valve:
                 if total_release > maxrelease:
                     maxrelease = total_release
                     maxopen = total_open
-                    maxroute = route
+                    maxroute = list(route)
 
-            print(f"{length=} {maxrelease=} {maxopen=} route={'->'.join(v.id for v in maxroute)}")
+            routevis = [p.direct(v) for p, v in zip(([firstvalve]+maxroute), maxroute)]
+            print(f"{length=} {maxrelease=} {maxopen=} route={firstvalve.id}{''.join(routevis)}")
+            v.recaproute(maxroute, firstvalve)
+
+    def recaproute(self, rest, v):
+        print("| min | start | dist2next | total open | total release | adding |")
+
+        total_release=0
+        total_open=0
+        minute=1
+        for n in rest:
+            opening = bool(v.flowrate)
+            dist2next = v.distances[n.id]
+            print(f"|{minute:3}  | {v.id:5} | {dist2next:9} | {total_open:10} | {total_release:13} | {v.flowrate:6} | {opening}")
+            if opening:
+                total_release += total_open
+                total_open += v.flowrate
+                minute += 1
+
+            minute += dist2next
+            total_release += dist2next * total_open
+            v = n
+
+
+        restminutes = 30 - minute
+        print(f"|{minute:3}  | {v.id:5} | {restminutes:9} | {total_open:10} | {total_release:13} |")
+        minute += restminutes
+        total_release += restminutes * total_open
+        print(f"|{minute:3}  |       |           | {total_open:10} | {total_release:13} |")
 
 
 firstvalve = None
-for d in sys.stdin.readlines():
-    v = Valve(d)
-    valves[v.id] = v
-    firstvalve = firstvalve or v
+with open("map.dot", "w") as m:
+    print('strict graph { layout="fdp"', file=m)
+    for d in sys.stdin.readlines():
+        v = Valve(d)
+        valves[v.id] = v
+        for exit in v.paths:
+            print(f"{v.id} -- {exit}", file=m)
+    print("}", file=m)
+
+
+firstvalve = valves['AA']
 
 
 Valve.calc_distances()
 
-if len(valves) < 30:
+if len(sys.argv) > 1 and sys.argv[1] == 'maponly':
     allids = sorted(valves.keys())
-    print("     " + '  '.join(allids))
+    print("     " + ' '.join(allids))
     for v in valves.values():
-        print(f"{v.id}: {v.show_distances(allids)}")
+        print(f"{v.id}:{v.show_distances(allids)}")
     print()
+    sys.exit()
 
 firstvalve.walk()
-# small target: DD->BB->JJ->HH->EE->CC
-
-# 2019 is too high

@@ -1,0 +1,25 @@
+%!
+
+0 setgray
+1 setlinewidth
+
+/left left cvi def
+/right right cvi def
+/top top cvi def
+/bottom bottom cvi def
+
+/width right left sub def
+/height top bottom sub def
+
+left neg bottom neg translate
+
+
+newpath
+left top moveto
+right top lineto
+right bottom lineto
+left bottom lineto
+closepath
+stroke
+
+showpage

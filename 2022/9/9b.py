@@ -201,3 +201,4 @@ for move in moves:
 
 print(field.count(Marks.SEEN))
 print(field[Position(0,0)].marks)
+print(f"size {field.l} {field.t} {field.r} {field.b}")

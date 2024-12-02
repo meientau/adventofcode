@@ -1,0 +1,5 @@
+length=3 maxrelease=1458 maxopen=65 route=AA-3->VP-2->VM-3->TR
+length=4 maxrelease=1666 maxopen=83 route=AA-3->XQ-3->VP-2->VM-3->TR
+length=5 maxrelease=1756 maxopen=98 route=AA-3->XQ-3->VP-2->VM-3->TR-8->KI
+length=6 maxrelease=1829 maxopen=109 route=AA-3->XQ-3->VP-2->VM-3->TR-6->DO-2->KI
+length=7 maxrelease=1938 maxopen=115 route=AA-3->XQ-3->VP-2->VM-3->TR-6->DO-2->KI-5->VH

@@ -1,0 +1,37 @@
+# small target: DD->BB->JJ->HH->EE->CC
+
+# 2019 is too high
+# 1907 is still too high???
+
+
+length=5 maxrelease=1756 maxopen= 98 route=AA->XQ->VP->VM->TR->KI
+length=6 maxrelease=1829 maxopen=109 route=AA->XQ->VP->VM->TR->DO->KI
+length=7 maxrelease=1938 maxopen=115 route=AA->XQ->VP->VM->TR->DO->KI->VH
+length=8 maxrelease=1948 maxopen=133 route=AA->XQ->SH->VP->VM->TR->DO->KI->HN
+
+     AA BB CC DD EE FF GG HH II JJ
+AA:  0  1  2  1  2  3  4  5  1  2
+BB:  1  0  1  2  3  4  5  6  2  3
+CC:  2  1  0  1  2  3  4  5  3  4
+DD:  1  2  1  0  1  2  3  4  2  3
+EE:  2  3  2  1  0  1  2  3  3  4
+FF:  3  4  3  2  1  0  1  2  4  5
+GG:  4  5  4  3  2  1  0  1  5  6
+HH:  5  6  5  4  3  2  1  0  6  7
+II:  1  2  3  2  3  4  5  6  0  1
+JJ:  2  3  4  3  4  5  6  7  1  0
+
+length=3 maxrelease=1423 maxopen=63 route=AA-2->JJ-3->DD-4->HH
+length=4 maxrelease=1612 maxopen=76 route=AA-1->DD-2->BB-3->JJ-7->HH
+length=5 maxrelease=1639 maxopen=79 route=AA-1->DD-2->BB-3->JJ-7->HH-3->EE
+length=6 maxrelease=1651 maxopen=81 route=AA-1->DD-2->BB-3->JJ-7->HH-3->EE-2->CC
+
+length=3 maxrelease=1458 maxopen=65 route=AA-3->VP-2->VM-3->TR
+length=4 maxrelease=1666 maxopen=83 route=AA-3->XQ-3->VP-2->VM-3->TR
+length=5 maxrelease=1756 maxopen=98 route=AA-3->XQ-3->VP-2->VM-3->TR-8->KI
+length=6 maxrelease=1829 maxopen=109 route=AA-3->XQ-3->VP-2->VM-3->TR-6->DO-2->KI
+length=7 maxrelease=1938 maxopen=115 route=AA-3->XQ-3->VP-2->VM-3->TR-6->DO-2->KI-5->VH
+
+| min | start | dist2next | total open | total release |
+|   1 | AA    |         3 |          0 |             0 |
+|   4 |       |           |            |               |

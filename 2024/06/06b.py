@@ -30,7 +30,7 @@ if len(obstacles) < 100:
     print(obstacles)
     print(f"{starting_point=}")
 
-def causes_loop(new_obstacle):
+def can_escape(new_obstacle):
     seen = set()
     temp_obstacles = obstacles | {new_obstacle}
     here = starting_point
@@ -38,7 +38,7 @@ def causes_loop(new_obstacle):
     while still_inside(here):
         state = (here, heading)
         if state in seen:
-            return True
+            return False
         seen.add(state) # remember that we've been here
         
         next_stop = plus(here, directions[heading])
@@ -53,16 +53,29 @@ def causes_loop(new_obstacle):
         # after 2x hit we are going back where we came from, so that must be free.
         here = next_stop
         
-    return False
+    return set(p for p, d in seen)
 
 new_obstacles = set()
 total = bottom_right.u * bottom_right.v
+candidates = None
 for v in range(bottom_right.v+1):
     for u in range(bottom_right.u+1):
         test = Point(u, v)
-        if causes_loop(test):
+        if candidates and test not in candidates:
+            continue
+        
+        if len(obstacles) < 100:
+            print(f"{test=}")
+        lucky = can_escape(test)
+        if lucky:
+            if not candidates:
+                if len(obstacles) < 100:
+                    print(lucky)
+                candidates = lucky
+        else:
             new_obstacles.add(test)
-            print(f' {100.0*(u + v*bottom_right.u) / total:5.1f}', end='\r', flush=True)
+            print(f' {100.0*(u + v*bottom_right.u) / total:5.1f}%', end='\r', flush=True)
+
 print()
 
 if len(obstacles) < 100:
@@ -82,4 +95,4 @@ if len(obstacles) < 100:
 print(f"{len(new_obstacles)=}")
 
 # len(new_obstacles)=6 0.018s
-# len(new_obstacles)=2165 1m23.346s
+# len(new_obstacles)=2165 21.332s

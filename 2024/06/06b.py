@@ -82,3 +82,4 @@ if len(obstacles) < 100:
 print(f"{len(new_obstacles)=}")
 
 # len(new_obstacles)=6 0.018s
+# len(new_obstacles)=2165 1m23.346s

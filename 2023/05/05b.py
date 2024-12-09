@@ -1,4 +1,5 @@
 import fileinput
+from itertools import batched # since python 3.12
 from pprint import pprint
 
 def separate(data):
@@ -23,7 +24,10 @@ for line in fileinput.input():
         continue
 
     if not current:
-        current = separate(line.split(':')[1])
+        ranges = separate(line.split(':')[1])
+        current = list()
+        for start, end in batched(ranges, 2):
+            current += list(range(start, start + end))
         continue
 
     if ':' in line:
@@ -38,4 +42,3 @@ traces.append(current)
 if len(current) < 10:
     pprint(traces)
 print(min(traces[-1]))
-# 331445006 0.097s

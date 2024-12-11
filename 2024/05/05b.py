@@ -18,7 +18,8 @@ if len(rules) < 100:
 
 
 def fix(update):
-    todo = dict([(f, [v for v in t if v in update]) for f, t in rules.items() if f in update])
+    todo = dict([(f, [v for v in t if v in update])
+                 for f, t in rules.items() if f in update])
     while True:
         ok = True
         for first_n, thens in todo.items():
@@ -38,14 +39,15 @@ def fix(update):
 oksum = 0
 fixedsum = 0
 for update in editions:
-    todo = dict([(f, [v for v in t if v in update]) for f, t in rules.items() if f in update])
+    todo = dict([(f, [v for v in t if v in update])
+                 for f, t in rules.items() if f in update])
     bad = list(chain(todo.values()))
     ok = True
     for page in update:
         if page in todo:
             del todo[page]
             bad = set(chain(*todo.values()))
-            
+
         if page in bad:
             ok = False
             break

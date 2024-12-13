@@ -7,6 +7,10 @@ class Main12a_Test(unittest.TestCase):
         fields = main12a.find_all_fields(["a\n"])
         self.assertEqual(1, len(fields))
 
+    def test_no_crop_no_field(self):
+        fields = main12a.find_all_fields([" \n"])
+        self.assertEqual(0, len(fields))
+
     def test_single_field_has_an_area(self):
         fields = main12a.find_all_fields(["a\n"])
         self.assertEqual(1, fields[0].area())

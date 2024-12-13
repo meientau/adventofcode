@@ -57,10 +57,22 @@ def find_all_fields(lines):
 
             this_field = Field(u, v, crop)
 
-            if here and here[-1].similar_to(this_field):
+            merge_left = here and here[-1].similar_to(this_field)
+            merge_up = above and above[u].similar_to(this_field)
+            if merge_left and merge_up:
+                above_field = above[u]
+                left_field = here[-1]
+                above_field.merge(this_field)
+                this_field = above_field
+                above_field.merge(left_field)
+                here = [this_field if f == left_field else f
+                        for f in here]
+                if above_field != left_field:
+                    all_fields.remove(left_field)
+            elif merge_left:
                 here[-1].merge(this_field)
                 this_field = here[-1]
-            elif above and above[u].similar_to(this_field):
+            elif merge_up:
                 above[u].merge(this_field)
                 this_field = above[u]
             else:
@@ -71,3 +83,17 @@ def find_all_fields(lines):
         above = here
 
     return all_fields
+
+def total_value(fields):
+    total = 0
+    for field in fields:
+        total += field.area() * field.perimeter()
+    return total
+
+if __name__ == "__main__":
+    import fileinput
+    fields = find_all_fields(list(fileinput.input()))
+    total = total_value(fields)
+    print(f"{total=}")
+
+# total=1359028 0.124s

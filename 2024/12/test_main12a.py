@@ -49,3 +49,44 @@ class Main12a_Test(unittest.TestCase):
         self.assertEqual(1, len(fields))
         self.assertEqual(2, fields[0].area())
         self.assertEqual(6, fields[0].perimeter())
+
+    def test_fields_merge_vertically_and_horizontally(self):
+        fields = main12a.find_all_fields(["aa\n", "aa\n"])
+        self.assertEqual(1, len(fields))
+        self.assertEqual(4, fields[0].area())
+        self.assertEqual(8, fields[0].perimeter())
+
+    def test_fields_merge_with_corners(self):
+        fields = main12a.find_all_fields(["bba\n", "baa\n"])
+        self.assertEqual(2, len(fields))
+        self.assertEqual(3, fields[0].area())
+        self.assertEqual(8, fields[0].perimeter())
+        self.assertEqual(3, fields[1].area())
+        self.assertEqual(8, fields[1].perimeter())
+
+    def test_fields_merge_with_enclaves(self):
+        fields = main12a.find_all_fields(["aaa\n", "aba\n", "aaa\n"])
+        self.assertEqual(2, len(fields))
+        self.assertEqual(8, fields[0].area())
+        self.assertEqual(16, fields[0].perimeter())
+        self.assertEqual(1, fields[1].area())
+
+    def test_sample_input(self):
+        land = """
+RRRRIICCFF
+RRRRIICCCF
+VVRRRCCFFF
+VVRCCCJFFF
+VVVVCJJCFE
+VVIVCCJJEE
+VVIIICJJEE
+MIIIIIJJEE
+MIIISIJEEE
+MMMISSJEEE
+"""
+        fields = main12a.find_all_fields(land.split())
+        from pprint import pprint
+        pprint(fields)
+        self.assertEqual(11, len(fields))
+        self.assertEqual(12, fields[0].area())
+        self.assertEqual(18, fields[0].perimeter())

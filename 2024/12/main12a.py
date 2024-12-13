@@ -13,6 +13,9 @@ class Point:
 
     def __hash__(self):
         return 31 * self.u + self.v
+    
+    def __str__(self):
+        return f"({self.u},{self.v})"
 
 directions = {Point(1, 0), Point(0, 1), Point(-1, 0), Point(0, -1)}
 
@@ -36,6 +39,12 @@ class Field:
 
     def merge(self, o):
         self.acres |= o.acres
+
+    def __repr__(self): return str(self)
+    
+    def __str__(self):
+        return f"Field({self.crop}@{self.entry} a={self.area()} p={self.perimeter()})"
+    
 
 def find_all_fields(lines):
     all_fields = list()

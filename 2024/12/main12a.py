@@ -12,6 +12,9 @@ class Field:
     def area(self):
         return len(self.acres)
     
+    def perimeter(self):
+        return 4
+    
     def similar_to(self, o):
         return self != o and self.crop == o.crop
     

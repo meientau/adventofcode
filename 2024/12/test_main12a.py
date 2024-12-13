@@ -21,3 +21,8 @@ class Main12a_Test(unittest.TestCase):
         self.assertEqual(2, len(fields))
         self.assertEqual(2, fields[0].area())
         self.assertEqual(3, fields[1].area())
+
+    def test_single_field_has_a_perimeter(self):
+        fields = main12a.find_all_fields(["a\n"])
+        self.assertEqual(4, fields[0].perimeter())
+

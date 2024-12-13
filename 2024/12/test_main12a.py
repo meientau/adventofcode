@@ -11,4 +11,7 @@ class Main12a_Test(unittest.TestCase):
         fields = main12a.find_all_fields(["a\n"])
         self.assertEqual(1, fields[0].area())
 
-    
+    def test_double_field_has_an_area(self):
+        fields = main12a.find_all_fields(["aa\n"])
+        self.assertEqual(1, len(fields))
+        self.assertEqual(2, fields[0].area())

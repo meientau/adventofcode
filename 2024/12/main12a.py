@@ -39,20 +39,26 @@ class Field:
 
 def find_all_fields(lines):
     all_fields = list()
-    for v, line in enumerate(lines):
-        last_field = None
 
+    above = list()
+    for v, line in enumerate(lines):
+        here = list()
         for u, crop in enumerate(line.strip()):
             if crop == ' ': continue
 
             this_field = Field(u, v, crop)
 
-            if last_field and last_field.similar_to(this_field):
-                last_field.merge(this_field)
-                this_field = last_field
+            if here and here[-1].similar_to(this_field):
+                here[-1].merge(this_field)
+                this_field = here[-1]
+            elif above and above[u].similar_to(this_field):
+                above[u].merge(this_field)
+                this_field = above[u]
             else:
                 all_fields.append(this_field)
                 
-            last_field = this_field
+            here.append(this_field)
             
+        above = here
+
     return all_fields

@@ -43,3 +43,9 @@ class Main12a_Test(unittest.TestCase):
         self.assertEqual(4, fields[1].perimeter())
         self.assertEqual(3, fields[2].area())
         self.assertEqual(8, fields[2].perimeter())
+
+    def test_fields_merge_vertically(self):
+        fields = main12a.find_all_fields(["a\n", "a\n"])
+        self.assertEqual(1, len(fields))
+        self.assertEqual(2, fields[0].area())
+        self.assertEqual(6, fields[0].perimeter())

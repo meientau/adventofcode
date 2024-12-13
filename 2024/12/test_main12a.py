@@ -15,3 +15,9 @@ class Main12a_Test(unittest.TestCase):
         fields = main12a.find_all_fields(["aa\n"])
         self.assertEqual(1, len(fields))
         self.assertEqual(2, fields[0].area())
+
+    def test_two_fields_do_not_merge(self):
+        fields = main12a.find_all_fields(["aabbb\n"])
+        self.assertEqual(2, len(fields))
+        self.assertEqual(2, fields[0].area())
+        self.assertEqual(3, fields[1].area())

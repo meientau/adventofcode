@@ -13,7 +13,7 @@ class Field:
         return len(self.acres)
     
     def similar_to(self, o):
-        return True
+        return self != o and self.crop == o.crop
     
     def merge(self, o):
         self.acres |= o.acres

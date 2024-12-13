@@ -1,6 +1,20 @@
 from collections import namedtuple
 
-Point = namedtuple("Point", ["u", "v"])
+class Point:
+    def __init__(self, u, v):
+        self.u = u
+        self.v = v
+
+    def __add__(self, o):
+        return Point(self.u + o.u, self.v + o.v)
+
+    def __eq__(self, o):
+        return self.u == o.u and self.v == o.v
+
+    def __hash__(self):
+        return 31 * self.u + self.v
+
+directions = {Point(1, 0), Point(0, 1), Point(-1, 0), Point(0, -1)}
 
 class Field:
     def __init__(self, u, v, crop):
@@ -13,7 +27,9 @@ class Field:
         return len(self.acres)
     
     def perimeter(self):
-        return 4
+        return sum(1 for a in self.acres
+                   for d in directions
+                   if a+d not in self.acres)
     
     def similar_to(self, o):
         return self != o and self.crop == o.crop

@@ -26,3 +26,7 @@ class Main12a_Test(unittest.TestCase):
         fields = main12a.find_all_fields(["a\n"])
         self.assertEqual(4, fields[0].perimeter())
 
+    def test_double_field_has_a_perimeter(self):
+        fields = main12a.find_all_fields(["aa\n"])
+        self.assertEqual(6, fields[0].perimeter())
+

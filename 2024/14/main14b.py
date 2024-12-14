@@ -1,3 +1,6 @@
+# Now I know where the tree is, I can show it.
+# See main14b-guess-one.py for how I got here, and it was not a straight path.
+
 import fileinput
 import re
 from collections import namedtuple

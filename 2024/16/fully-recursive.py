@@ -1,6 +1,7 @@
 import fileinput
-from structures16 import Point, headings, headingsymbols
 import sys
+
+from structures16 import Point, headings, headingsymbols
 
 sys.setrecursionlimit(10000)
 
@@ -58,13 +59,13 @@ def print_field():
     print()
 
 
-def find_score(here, head, old_score):
+def find_score(here, head):
     if here == end:
         if debug:
-            print(f"{old_score=}")
             print_field()
-        print(old_score)
-        return old_score
+        else:
+            print(len(moves))
+        return 0
 
     score = sys.maxsize
     any_step_made = False
@@ -74,14 +75,14 @@ def find_score(here, head, old_score):
         if newpos in spaces and newpos not in moves:
             any_step_made = True
             moves[here] = h
-            new_score = old_score + 1 + 1000 * int(head != h)
-            score = min(score, find_score(newpos, h, new_score))
+            add_score = 1 + 1000 * int(head != h)
+            score = min(score, find_score(newpos, h) + add_score)
             del moves[here]
 
     return score
 
 def start_find_score():
-    return find_score(start, headingsymbols[0], 0)
+    return find_score(start, headingsymbols[0])
 
 
 read_all()
@@ -91,3 +92,4 @@ if debug: print_field()
 print(f"{score=}")
 
 # 238836 too high
+# score=228812  0.216s too high (using invalid caching)

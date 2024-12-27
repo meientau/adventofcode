@@ -1,29 +1,25 @@
 import fileinput
-from collections import namedtuple, defaultdict, OrderedDict
+from collections import defaultdict
+from itertools import chain
 from pprint import pprint
 
-P = namedtuple("P", "u v", defaults=[0, 0])
-P.__add__ = lambda self, o: P(self.u + o.u, self.v + o.v)
+from structures16 import *
 
-S = namedtuple("S", "p head score prev")
-S.__repr__ = lambda self: f"({self.p} {self.head} {self.score} {self.prev.p})"
-S.__str__ = S.__repr__
-
-headings = [P( 1,  0), P( 0, -1), P(-1,  0), P( 0,  1)]
-headingsymbols = '>^<v'
+moves = defaultdict(set)            # all moves on a point
+network = defaultdict(set)          # all links starting at a point
 
 start = None
 end = None
 spaces = set()
-pmin = P()
-pmax = P()
+pmin = Point()
+pmax = Point()
 
 def read_all():
     global pmax, start, end
     for v, line in enumerate(fileinput.input()):
         for u, char in enumerate(line.strip()):
-            p = P(u, v)
-            pmax = P(max(pmax.u, p.u), max(pmax.v, p.v))
+            p = Point(u, v)
+            pmax = Point(max(pmax.u, p.u), max(pmax.v, p.v))
             if char == 'S':
                 start = p
             elif char == 'E':
@@ -35,21 +31,22 @@ def read_all():
     spaces.add(end)
 
 
+debug = len(spaces) < 100
+
+
 def all_field():
     for v in range(pmax.v+1):
         for u in range(pmax.u+1):
-            yield P(u, v)
+            yield Point(u, v)
 
 
-seen = defaultdict(set)
 def print_field():
     for p in all_field():
         if not p.u:
             print()
 
-        if p in seen:
-            shortest = min(seen[p])
-            c = headingsymbols[shortest.head]
+        if p in moves:
+            c = str(len(moves[p]))
         elif p == start:
             c = 'S'
         elif p == end:
@@ -63,43 +60,53 @@ def print_field():
     print()
 
 
-def find_paths():
-    global crash, crash2
-    interesting = {end, P(13, 13)}
-
-    todo = {S(p=start+headings[2], head=0, score=0, prev=None)}
-    accu = set()
-    while todo:
-        for s in todo:
+def find_moves():
+    for p in all_field():
+        if p not in spaces: continue
+        is_node = (p == start
+                   or len(set(axis for axis, offset in zip(axes, headings)
+                              if p+offset in spaces)) > 1)
+        if is_node:
             for h, offset in enumerate(headings):
-                next_p = s.p + offset
-                if next_p in spaces:
-                    headingscore = 1000*abs(s.head - h)
-                    score = s.score + 1 + headingscore
-                    step = S(next_p, h, score, s)
-                    if next_p in interesting: pprint(step)
-                    if seen[next_p]:
-                        if next_p in interesting: print(f"{seen[next_p]=}")
-                        minscore = min(s.score for s in seen[next_p])
-                        if next_p in interesting: print(f"{score=} {minscore=}")
-                        if score > minscore:
-                            if next_p in interesting: print("skipping")
-                            continue
+                if p + offset in spaces:
+                    m = Move(p, h)
+                    moves[p].add(m)
 
-                    if next_p in interesting: print("adding")
-                    seen[next_p].add(step)
-                    if len(accu) > 20: return
-                    accu.add(step)
 
-        print(f"{len(todo)=} {len(accu)=}")
+def find_links():
+    max_distance = max(pmax.u, pmax.v)
+    for m in chain.from_iterable(moves.values()):
+        closest_node = set()
+        closest_distance = max_distance
+        for p, o in moves.items():
+            if not m.leads_to(p): continue
 
-        todo = accu
-        accu = set()
+            vector = p - m.p
+            distance = abs(vector.u + vector.v)
+            if not closest_node or closest_distance > distance:
+                closest_node = o
+                closest_distance = distance
+
+        for target in closest_node:
+            if abs(m.h - target.h) == 2: continue
+            link = Link(m, target)
+            network[m.p].add(link)
+
+
+def walk_network():
+    candidates = [Candidate(link) for link in network[start]]
+    pprint(candidates)
+    todo: do not link through walls
 
 
 read_all()
-print_field()
-find_paths()
-print_field()
-pprint(seen[end])
-print(f"{start=} {end=}")
+if debug: print_field()
+find_moves()
+if debug: print_field()
+pprint(moves[start])
+pprint(moves[end])
+find_links()
+pprint(network)
+walk_network()
+if debug: print_field()
+print(len(network))

@@ -6,13 +6,10 @@ def separate(data):
     return list(map(int, data.split()))
 
 def map_values(last, current, rules):
-    dest, src, length = rules
     result = list()
-    for value, default in zip(last, current):
-        if value >= src and value < src+length:
-            result.append(dest + value - src)
-        else:
-            result.append(default)
+    for r in rules:
+        for s in last:
+            if r[0]
 
     return result
 
@@ -27,7 +24,7 @@ for line in fileinput.input():
         ranges = separate(line.split(':')[1])
         current = list()
         for start, end in batched(ranges, 2):
-            current += list(range(start, start + end))
+            current += range(start, start + end)
         continue
 
     if ':' in line:

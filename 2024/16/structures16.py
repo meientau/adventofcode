@@ -1,119 +1,160 @@
 from collections import namedtuple, defaultdict
+from pprint import pprint
 
 Point = namedtuple("Point", "u v", defaults=[0, 0])
 Point.__add__ = lambda self, o: Point(self.u + o.u, self.v + o.v)
 Point.__sub__ = lambda self, o: Point(self.u - o.u, self.v - o.v)
 
+Heading = namedtuple("Heading", "off sym axis")
+headings = [
+    Heading(Point( 1,  0), '>', 'x'),
+    Heading(Point( 0,  1), 'v', 'y'),
+    Heading(Point(-1,  0), '<', 'x'),
+    Heading(Point( 0, -1), '^', 'y'),
+]
 
-headings = [Point( 1,  0), Point( 0, -1), Point(-1,  0), Point( 0,  1)]
-headingsymbols = '>^<v'
-axes = 'xyxy'
-
-class Move:
-    def __init__(self, p, h):
+class Hook:
+    def __init__(self, p: Point, h: Heading):
         self.p = p
         self.h = h
 
-    def leads_to(self, p):
-        v = p - self.p
-        if v.u and v.v:  # diagonal
-            return False
-
-        off = headings[self.h]
-        return v.u*off.u > 0 or v.v*off.v > 0
-
     def __repr__(self):
-        return f"{self.p}{headingsymbols[self.h]}"
+        return f"{self.p}{self.h.sym}"
 
     def __str__(self):
         return repr(self)
+
+    all = defaultdict(set)
+
+    @classmethod
+    def find_all(cls, spaces):
+        for p in spaces:
+            away = [heading for heading in headings
+                    if p + heading.off in spaces]
+            if len(away) > 2:
+                for h in away:
+                    cls.all[p].add(Hook(p, h))
+
+    def __eq__(self, other):
+        return self.p == other.p and self.h == other.h
+
+    def __hash__(self):
+        return 31*hash(self.p) + hash(self.h)
+
+
+def show_path(path):
+    points = dict((h.p, h) for h in path)
+    for v in range(min(h.p.v for h in path), max(h.p.v for h in path)+1):
+        for u in range(min(h.p.u for h in path), max(h.p.u for h in path)+1):
+            p = Point(u,v)
+            if p in points:
+                print(points[p].h.sym, end='')
+            else:
+                print(' ', end='')
+        print()
 
 
 class Link:
-    def __init__(self, fro, to):
+    def __init__(self, fro: Hook, to: Hook, score: int):
         self.fro = fro
         self.to = to
-        v = to.p - fro.p
-        steps = abs(v.u + v.v)
-        turns = to.h != fro.h
-        self.score = steps + 1000 * turns
+        self.score = score
 
     def __repr__(self):
-        return f"({self.fro}->{self.to}@{self.score})"
+        return f"({self.fro} -> {self.to}@{self.score})"
 
     def __str__(self):
         return repr(self)
 
+    all = set()
 
-class Candidate:
-    def __init__(self, link):
-        self.links = list()
-        self.score = 0
-        self.add_link(link)
+    @classmethod
+    def find_all(cls, spaces):
+        if cls.all:
+            return
 
-    def add_link(self, link):
-        self.links.append(link)
-        self.score += link.score
+        Hook.find_all(spaces)
 
-    def __repr__(self):
-        return f"({self.links[0].fro} -> {self.links[-1].to} @{self.score})"
+        collected = defaultdict(set)
+        for hooks in Hook.all.values():
+            for hook in hooks:
+                collected[hook] = cls.follow_hook(hook)
 
-    def __str__(self):
-        return repr(self)
+        cls.all = dict(collected.items())
 
+    @classmethod
+    def follow_hook(cls, fro: Hook):
+        score = 1
+        here = Hook(fro.p + fro.h.off, fro.h)
+        seen = {fro, here}
+        while True:
+            for heading in headings:
+                p = here.p + heading.off
+                if p in spaces and (heading == here.h or heading.axis != here.h.axis):
+                    new_hook = Hook(p, heading)
+                    break
+
+            if new_hook.p in Hook.all:
+                links = set()
+                for to in Hook.all[new_hook.p]:
+                    if to.h == here.h or to.h.axis != here.h.axis:
+                        print(f"    adding {fro} --> {to}, last looked at {here}")
+                        show_path(seen)
+                        links.add(Link(fro, to, score + 1 + 1000 * int(here.h.axis != to.h.axis)))
+                return links
+
+            score += 1 + 1000 * int(here.h.axis != new_hook.h.axis)
+            here = new_hook
+            seen.add(here)
 
 import unittest
 
-class TestMove(unittest.TestCase):
-    def test_leads_to_simple(self):
-        a = Point(1, 1)
-        b = Point(3, 1)
-        h = 0
-        ma = Move(a, h)
-        self.assertTrue(ma.leads_to(b))
+spaces = {
+    Point(1, 1),
+    Point(2, 1),
+    Point(3, 1),
+    Point(4, 1),
+    Point(5, 1),
+    Point(1, 2),
+    Point(3, 2),
+    Point(5, 2),
+    Point(1, 3),
+    Point(2, 3),
+    Point(3, 3),
+    Point(4, 3),
+    Point(5, 3),
+}
+
+
+class TestHook(unittest.TestCase):
+    def test_find_hooks(self):
+        Hook.find_all(spaces)
+        self.assertEqual(2, len(Hook.all))
+        for hooks in Hook.all.values():
+            self.assertEqual(3, len(hooks))
+        self.assertEqual(set('<^>'), set(hook.h.sym for hook in Hook.all[Point(3,3)]))
 
 
 class TestLink(unittest.TestCase):
-    def test_score_one(self):
-        link = Link(Move(Point(1, 1), 0), Move(Point(2, 1), 0))
-        self.assertEqual(link.score, 1)
+    def __init__(self, methodName = "runTest"):
+        super().__init__(methodName)
+        Link.find_all(spaces)
 
-    def test_score_two(self):
-        link = Link(Move(Point(1, 1), 3), Move(Point(1, 3), 3))
-        self.assertEqual(link.score, 2)
+        print()
+        print("after init:")
+        pprint(Link.all)
 
-    def test_score_one_thousand_five(self):
-        link = Link(Move(Point(1, 1), 0), Move(Point(6, 1), 1))
-        self.assertEqual(link.score, 1005)
+    def test_find_links(self):
+        Link.find_all(spaces)
+        self.assertEqual(6, len(Link.all))
 
-    def test_score_one_thousand_six(self):
-        link = Link(Move(Point(1, 7), 1), Move(Point(1, 1), 2))
-        self.assertEqual(link.score, 1006)
-
-    def test_score_one_thousand_seven(self):
-        link = Link(Move(Point(1, 8), 2), Move(Point(1, 1), 1))
-        self.assertEqual(link.score, 1007)
-
-    def test_score_one_thousand_eight(self):
-        link = Link(Move(Point(1, 9), 3), Move(Point(1, 1), 0))
-        self.assertEqual(link.score, 1008)
-
-
-class TestCandidate(unittest.TestCase):
-    def test_single(self):
-        link = Link(Move(Point(1, 9), 3), Move(Point(1, 1), 0))
-        candidate = Candidate(link)
-        self.assertEqual(candidate.score, 1008)
-
-    def test_double(self):
-        link1 = Link(Move(Point(1, 9), 3), Move(Point(1, 1), 0))
-        link2 = Link(Move(Point(1, 1), 0), Move(Point(6, 1), 1))
-
-        candidate = Candidate(link1)
-        candidate.add_link(link2)
-
-        self.assertEqual(candidate.score, 2013)
-
+    def test_find_in_place_links(self):
+        for links in Link.all.values():
+            self.assertEqual(2, len(links))
+        self.assertEqual({2006, 3006}, set(link.score for link in Link.all[Hook(Point(3,3), headings[0])]))
+        self.assertNotIn(Hook(Point(3,3), headings[1]), Link.all)
+        self.assertEqual({2006, 3006}, set(link.score for link in Link.all[Hook(Point(3,3), headings[2])]))
+        self.assertEqual([1002, 1002], [link.score for link in Link.all[Hook(Point(3,3), headings[3])]])
 
 
 if __name__ == "__main__":

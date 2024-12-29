@@ -24,14 +24,15 @@ class Hook:
     def __str__(self):
         return repr(self)
 
-    all = defaultdict(set)
-
     @classmethod
-    def find_all(cls, spaces):
+    def find_all(cls, spaces, preset=None):
+        cls.all = defaultdict(set)
+        preset = preset or list()
+
         for p in spaces:
             away = [heading for heading in headings
                     if p + heading.off in spaces]
-            if len(away) > 2:
+            if len(away) > 2 or p in preset:
                 for h in away:
                     cls.all[p].add(Hook(p, h))
 
@@ -66,14 +67,10 @@ class Link:
     def __str__(self):
         return repr(self)
 
-    all = set()
 
     @classmethod
-    def find_all(cls, spaces):
-        if cls.all:
-            return
-
-        Hook.find_all(spaces)
+    def find_all(cls, spaces, preset=None):
+        Hook.find_all(spaces, preset)
 
         collected = defaultdict(set)
         for hooks in Hook.all.values():
@@ -145,17 +142,38 @@ class TestLink(unittest.TestCase):
         pprint(Link.all)
 
     def test_find_links(self):
-        Link.find_all(spaces)
         self.assertEqual(6, len(Link.all))
 
     def test_find_in_place_links(self):
-        for links in Link.all.values():
-            self.assertEqual(2, len(links))
-        self.assertEqual({2006, 3006}, set(link.score for link in Link.all[Hook(Point(3,3), headings[0])]))
+        for hook, links in Link.all.items():
+            if hook.p.u == 3 and hook.h.axis == 'x':
+                self.assertEqual(1, len(links))
+            else:
+                self.assertEqual(2, len(links))
+
+        self.assertEqual({2004}, set(link.score for link in Link.all[Hook(Point(3,3), headings[0])]))
         self.assertNotIn(Hook(Point(3,3), headings[1]), Link.all)
-        self.assertEqual({2006, 3006}, set(link.score for link in Link.all[Hook(Point(3,3), headings[2])]))
+        self.assertEqual({1002}, set(link.score for link in Link.all[Hook(Point(3,3), headings[2])]))
         self.assertEqual([1002, 1002], [link.score for link in Link.all[Hook(Point(3,3), headings[3])]])
 
+
+class TestPath(unittest.TestCase):
+    def __init__(self, methodName = "runTest"):
+        super().__init__(methodName)
+        self.start = Point(1, 3)
+        self.end = Point(5,1)
+        Link.find_all(spaces, [self.start, self.end])
+
+        print()
+        print("after init:")
+        pprint(Link.all)
+
+    def test_find_links(self):
+        self.assertEqual(10, len(Link.all))
+
+    def test_find_path(self):
+
+        pass
 
 if __name__ == "__main__":
     unittest.main()

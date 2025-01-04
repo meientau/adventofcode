@@ -29,6 +29,16 @@ class OpCodeTes(unittest.TestCase):
     # The bst instruction (opcode 2) calculates the value of its combo
     # operand modulo 8 (thereby keeping only its lowest 3 bits), then
     # writes that value to the B register.
+    def test_bst(self):
+        cpu = ElfComputer()
+
+        y = 0b011010
+        r = 0b000010
+        program = [cpu.bst.op, y]
+
+        cpu.run(program)
+
+        self.assertEqual(r, cpu.b)
 
     # The jnz instruction (opcode 3) does nothing if the A register is
     # 0. However, if the A register is not zero, it jumps by setting

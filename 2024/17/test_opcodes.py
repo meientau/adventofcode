@@ -28,9 +28,9 @@ class OpCodeTes(unittest.TestCase):
     def test_bxl(self):
         cpu = ElfComputer()
 
-        x = 0b001011
-        y = 0b011010
-        r = 0b010001
+        x = 0b011
+        y = 0b010
+        r = 0b001
         program = [cpu.bxl, y]
 
         cpu.b = x
@@ -44,9 +44,10 @@ class OpCodeTes(unittest.TestCase):
     def test_bst(self):
         cpu = ElfComputer()
 
-        y = 0b011010
-        r = 0b000010
-        program = [cpu.bst, y]
+        cpu.a = 27
+        reg_A = 4
+        r = 3
+        program = [cpu.bst, reg_A]
 
         cpu.run(program)
 
@@ -57,6 +58,20 @@ class OpCodeTes(unittest.TestCase):
     # the instruction pointer to the value of its literal operand; if
     # this instruction jumps, the instruction pointer is not increased
     # by 2 after this instruction.
+    def test_jnz(self):
+        cpu = ElfComputer()
+
+        j = 3
+        program = [cpu.jnz, j]
+        cpu.a = 0
+        cpu.run(program)
+        self.assertEqual(len(program), cpu.pc)
+
+        j = 2
+        program = [cpu.jnz, j]
+        cpu.a = 1
+        cpu.run(program)
+        self.assertEqual(j, cpu.pc)
 
     # The bxc instruction (opcode 4) calculates the bitwise XOR of
     # register B and register C, then stores the result in register

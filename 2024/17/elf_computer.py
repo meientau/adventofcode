@@ -6,12 +6,26 @@ class ElfComputer():
     ops = list()
 
     def __init__(self):
+        self.pc = 0
+        self.a = 0
         self.b = 0
+        self.c = 0
 
     def run(self, program):
-        for instruction, argument in itertools.batched(program, 2):
+        while 0 <= self.pc < len(program):
+            instruction = program[self.pc]
+            argument = self.interpret_arg(program[self.pc+1])
+            self.pc += 2
             self.ops[instruction].execute(argument, self)
 
+    def interpret_arg(self, argument):
+        if argument < 4:
+            return argument
+
+        if argument >= 7:
+            raise ValueError
+
+        return [self.a, self.b, self.c][argument-4]
 
 
 def static_init(cls):
@@ -42,11 +56,15 @@ class Bxl(Operation):
 @static_init
 class Bst(Operation):
     def execute(self, arg, cpu):
-        cpu.b = arg % 3
+        print(f"{arg=}")
+        cpu.b = arg % 8
 
 
 @static_init
-class Jnz(Operation): pass
+class Jnz(Operation):
+    def execute(self, arg, cpu):
+        if cpu.a:
+            cpu.pc = arg
 
 @static_init
 class Bxc(Operation): pass

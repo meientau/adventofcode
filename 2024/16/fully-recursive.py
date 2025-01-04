@@ -59,37 +59,41 @@ def print_field():
     print()
 
 
-def find_score(here, head):
+best_score = sys.maxsize
+def find_score(here, head, old_score):
+    global best_score
+    if old_score > best_score:
+        return
+
     if here == end:
         if debug:
             print_field()
         else:
-            print(len(moves))
-        return 0
+            print(old_score)
 
-    score = sys.maxsize
-    any_step_made = False
+        best_score = min(old_score, best_score)
+        return
+
     for h, off in zip(headingsymbols, headings):
         newpos = here + off
 
         if newpos in spaces and newpos not in moves:
-            any_step_made = True
             moves[here] = h
             add_score = 1 + 1000 * int(head != h)
-            score = min(score, find_score(newpos, h) + add_score)
+            find_score(newpos, h, old_score+add_score)
             del moves[here]
 
-    return score
+    return
 
 def start_find_score():
-    return find_score(start, headingsymbols[0])
+    return find_score(start, headingsymbols[0], 0)
 
 
 read_all()
 if debug: print_field()
-score = start_find_score()
+start_find_score()
 if debug: print_field()
-print(f"{score=}")
+print(f"{best_score=}")
 
 # 238836 too high
-# score=228812  0.216s too high (using invalid caching)
+# 228812 too high

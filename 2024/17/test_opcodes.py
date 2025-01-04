@@ -9,6 +9,18 @@ class OpCodeTes(unittest.TestCase):
     # an operand of 2 would divide A by 4 (2^2); an operand of 5 would
     # divide A by 2^B.) The result of the division operation is
     # truncated to an integer and then written to the A register.
+    def test_adv(self):
+        cpu = ElfComputer()
+
+        x = 67
+        y = 2
+        r = x // (2**y)
+        program = [cpu.adv, y]
+
+        cpu.a = x
+        cpu.run(program)
+
+        self.assertEqual(r, cpu.a)
 
     # The bxl instruction (opcode 1) calculates the bitwise XOR of
     # register B and the instruction's literal operand, then stores
@@ -19,7 +31,7 @@ class OpCodeTes(unittest.TestCase):
         x = 0b001011
         y = 0b011010
         r = 0b010001
-        program = [cpu.bxl.op, y]
+        program = [cpu.bxl, y]
 
         cpu.b = x
         cpu.run(program)
@@ -34,7 +46,7 @@ class OpCodeTes(unittest.TestCase):
 
         y = 0b011010
         r = 0b000010
-        program = [cpu.bst.op, y]
+        program = [cpu.bst, y]
 
         cpu.run(program)
 

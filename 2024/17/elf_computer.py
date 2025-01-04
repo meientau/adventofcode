@@ -56,7 +56,6 @@ class Bxl(Operation):
 @static_init
 class Bst(Operation):
     def execute(self, arg, cpu):
-        print(f"{arg=}")
         cpu.b = arg % 8
 
 
@@ -67,7 +66,9 @@ class Jnz(Operation):
             cpu.pc = arg
 
 @static_init
-class Bxc(Operation): pass
+class Bxc(Operation):
+    def execute(self, arg, cpu):
+        cpu.b ^= cpu.c
 
 @static_init
 class Out(Operation): pass

@@ -77,6 +77,18 @@ class OpCodeTes(unittest.TestCase):
     # register B and register C, then stores the result in register
     # B. (For legacy reasons, this instruction reads an operand but
     # ignores it.)
+    def test_bxc(self):
+        cpu = ElfComputer()
+
+        cpu.b  = 0b01011
+        cpu.c  = 0b01001
+        ignore = 0
+        result = 0b00010
+        program = [cpu.bxc, ignore]
+
+        cpu.run(program)
+
+        self.assertEqual(result, cpu.b)
 
     # The out instruction (opcode 5) calculates the value of its combo
     # operand modulo 8, then outputs that value. (If a program outputs

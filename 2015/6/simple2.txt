@@ -1,0 +1,7 @@
+10 10
+turn on 0,0 through 2,9 30
+turn on 0,0 through 4,9 80
+toggle 0,3 through 7,5 128
+turn off 5,5 through 5,5 127
+turn on 8,8 through 9,9 131
+toggle 4,8 through 5,9 139
